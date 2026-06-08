@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <etechflow_megamenu>
+            <general>
+                <enabled>1</enabled>
+                <root_category_id>2</root_category_id>
+                <max_depth>2</max_depth>
+                <include_all_categories>0</include_all_categories>
+            </general>
+            <dropdown>
+                <products_per_category>3</products_per_category>
+                <show_thumbnails>1</show_thumbnails>
+                <mobile_drill>1</mobile_drill>
+                <products_source>position</products_source>
+                <promo_block></promo_block>
+            </dropdown>
+            <cache>
+                <cache_ttl>3600</cache_ttl>
+            </cache>
+            <appearance>
+                <accent_color></accent_color>
+            </appearance>
+        </etechflow_megamenu>
+    </default>
+</config>

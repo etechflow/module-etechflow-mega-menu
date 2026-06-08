@@ -1,0 +1,158 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Etechflow_MegaMenu — Hyvä variant (Tailwind + Alpine.js).
+ *
+ * Renders a horizontal category bar; on hover/focus, lazy-loads each
+ * subcategory's children + 3 featured products from /megamenu/products/index.
+ *
+ * Theme can override by placing a same-named phtml under
+ *   app/design/frontend/<Vendor>/<theme>/Etechflow_MegaMenu/templates/mega-menu.phtml
+ */
+
+use Etechflow\MegaMenu\Block\MegaMenu;
+use Etechflow\MegaMenu\ViewModel\MenuData;
+use Magento\Framework\Escaper;
+
+/** @var MegaMenu $block */
+/** @var Escaper $escaper */
+$menu      = $block->getMenuData();
+$top       = $menu->getTopLevelCategories();
+$endpoint  = $menu->getJsonEndpoint();
+$mobile    = $menu->getConfig()->isMobileDrillEnabled();
+$showThumb = $menu->getConfig()->showThumbnails();
+$promoHtml = $block->getPromoBlockHtml();
+?>
+
+<nav class="etmm etmm--hyva"
+     aria-label="<?= $escaper->escapeHtmlAttr(__('Main navigation')) ?>"
+     x-data='{
+        open: null,
+        loading: null,
+        data: {},
+        mobileOpen: false,
+        mobileSubs: {},
+        async load(id) {
+            if (this.data[id]) return;
+            this.loading = id;
+            try {
+                const r = await fetch(<?= json_encode($endpoint) ?> + "?cat=" + id, {credentials: "same-origin"});
+                this.data[id] = await r.json();
+            } catch (e) {
+                this.data[id] = {subcategories: [], products: []};
+            }
+            this.loading = null;
+        }
+     }'
+     @keydown.escape.window="open = null; mobileOpen = false">
+
+  <!-- Desktop bar -->
+  <ul class="etmm__bar" role="menubar">
+    <?php foreach ($top as $cat): ?>
+      <li class="etmm__item" role="none"
+          @mouseenter="open = <?= (int) $cat['id'] ?>; load(<?= (int) $cat['id'] ?>)"
+          @mouseleave="open = null"
+          @focusin="open = <?= (int) $cat['id'] ?>; load(<?= (int) $cat['id'] ?>)">
+        <a class="etmm__link"
+           role="menuitem"
+           href="<?= $escaper->escapeUrl($cat['url']) ?>"
+           :aria-expanded="open === <?= (int) $cat['id'] ?> ? 'true' : 'false'">
+          <?= $escaper->escapeHtml($cat['name']) ?>
+          <?php if ($cat['has_children']): ?>
+            <span class="etmm__chev" aria-hidden="true">▾</span>
+          <?php endif; ?>
+        </a>
+
+        <?php if ($cat['has_children']): ?>
+        <div class="etmm__pop"
+             role="menu"
+             x-show="open === <?= (int) $cat['id'] ?>"
+             x-transition.opacity
+             style="display:none">
+          <div class="etmm__pop-inner">
+            <?php if ($promoHtml !== ''): ?>
+            <div class="etmm__promo"><?= /* @noEscape */ $promoHtml ?></div>
+            <?php endif; ?>
+            <div class="etmm__subs">
+              <template x-if="loading === <?= (int) $cat['id'] ?>">
+                <p class="etmm__muted"><?= $escaper->escapeHtml(__('Loading…')) ?></p>
+              </template>
+              <template x-if="data[<?= (int) $cat['id'] ?>] && data[<?= (int) $cat['id'] ?>].subcategories.length">
+                <ul class="etmm__sublist">
+                  <template x-for="sub in data[<?= (int) $cat['id'] ?>].subcategories" :key="sub.id">
+                    <li>
+                      <a :href="sub.url" class="etmm__sublink">
+                        <span x-text="sub.name"></span>
+                        <small class="etmm__count" x-text="'(' + sub.count + ')'"></small>
+                      </a>
+                    </li>
+                  </template>
+                </ul>
+              </template>
+            </div>
+
+            <?php if ($showThumb): ?>
+            <div class="etmm__featured" aria-label="<?= $escaper->escapeHtmlAttr(__('Featured products')) ?>">
+              <template x-if="data[<?= (int) $cat['id'] ?>] && data[<?= (int) $cat['id'] ?>].products.length">
+                <ul class="etmm__cards">
+                  <template x-for="p in data[<?= (int) $cat['id'] ?>].products" :key="p.url">
+                    <li>
+                      <a :href="p.url" class="etmm__card">
+                        <template x-if="p.img">
+                          <img :src="p.img" :alt="p.name" loading="lazy" class="etmm__card-img">
+                        </template>
+                        <span class="etmm__card-name" x-text="p.name"></span>
+                        <span class="etmm__card-price" x-html="p.price_formatted"></span>
+                      </a>
+                    </li>
+                  </template>
+                </ul>
+              </template>
+            </div>
+            <?php endif; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+
+  <?php if ($mobile): ?>
+  <!-- Mobile hamburger -->
+  <button type="button"
+          class="etmm__hamburger"
+          @click="mobileOpen = !mobileOpen"
+          :aria-expanded="mobileOpen ? 'true' : 'false'"
+          aria-label="<?= $escaper->escapeHtmlAttr(__('Open menu')) ?>">
+    <span aria-hidden="true">☰</span>
+  </button>
+
+  <!-- Mobile slide-out -->
+  <div class="etmm__mobile" x-show="mobileOpen" x-transition.opacity style="display:none">
+    <div class="etmm__mobile-inner">
+      <button type="button" class="etmm__close" @click="mobileOpen = false"
+              aria-label="<?= $escaper->escapeHtmlAttr(__('Close menu')) ?>">×</button>
+      <ul class="etmm__mobile-list">
+        <?php foreach ($top as $cat): ?>
+          <li>
+            <a href="<?= $escaper->escapeUrl($cat['url']) ?>"><?= $escaper->escapeHtml($cat['name']) ?></a>
+            <?php if ($cat['has_children']): ?>
+              <button type="button" class="etmm__mobile-toggle"
+                      @click="load(<?= (int) $cat['id'] ?>); mobileSubs[<?= (int) $cat['id'] ?>] = !mobileSubs[<?= (int) $cat['id'] ?>]"
+                      :aria-expanded="!!mobileSubs[<?= (int) $cat['id'] ?>] ? 'true' : 'false'">+</button>
+              <ul class="etmm__mobile-sublist" x-show="mobileSubs[<?= (int) $cat['id'] ?>]" style="display:none">
+                <template x-if="data[<?= (int) $cat['id'] ?>]">
+                  <template x-for="sub in data[<?= (int) $cat['id'] ?>].subcategories" :key="sub.id">
+                    <li><a :href="sub.url" x-text="sub.name"></a></li>
+                  </template>
+                </template>
+              </ul>
+            <?php endif; ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  </div>
+  <?php endif; ?>
+</nav>

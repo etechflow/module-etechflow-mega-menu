@@ -1,0 +1,269 @@
+/* Etechflow_MegaMenu — self-contained styles.
+ * All class hooks are prefixed `etmm-` to avoid collisions with theme CSS.
+ * Works for both the Hyvä and Luma template variants.
+ *
+ * Theming: colours default to `currentColor` / neutral tints, so the menu
+ * automatically ADOPTS the active theme (it inherits the surrounding text
+ * colour and stays neutral). To apply a brand colour, set the CSS variable
+ * --etmm-accent — either via the admin "Accent Color" setting (injected inline
+ * on the <nav>) or from your own theme CSS.
+ */
+
+.etmm {
+    --etmm-text: currentColor;            /* inherits the theme's text colour   */
+    --etmm-accent: currentColor;          /* brand colour for hovers + prices    */
+    --etmm-hover-bg: rgba(0, 0, 0, 0.05);
+    --etmm-bg: #fff;
+    --etmm-border: rgba(0, 0, 0, 0.12);
+    --etmm-muted: #6b7280;
+    position: relative;
+    font-family: inherit;
+    color: inherit;
+}
+.etmm * { box-sizing: border-box; }
+
+/* ---- Bar ------------------------------------------------------------- */
+.etmm__bar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    background: transparent;
+}
+.etmm__item { position: relative; }
+.etmm__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.85rem 1.1rem;
+    color: var(--etmm-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    transition: color .15s, background .15s;
+}
+.etmm__link:hover,
+.etmm__link:focus,
+.etmm__item:hover > .etmm__link {
+    color: var(--etmm-accent);
+    background: var(--etmm-hover-bg);
+}
+.etmm__chev {
+    font-size: 0.65em;
+    line-height: 1;
+    margin-top: 1px;
+    opacity: 0.7;
+}
+
+/* ---- Dropdown popover ------------------------------------------------ */
+.etmm__pop {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 480px;
+    background: var(--etmm-bg);
+    border: 1px solid var(--etmm-border);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+    z-index: 200;
+    margin-top: -1px;
+}
+.etmm__item:hover > .etmm__pop:not([hidden]),
+.etmm__item:focus-within > .etmm__pop:not([hidden]) {
+    display: block;
+}
+.etmm__pop-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+}
+.etmm__pop-inner > :only-child { grid-column: 1 / -1; }
+
+.etmm__subs { min-width: 180px; }
+.etmm__muted { color: var(--etmm-muted); font-size: 12px; margin: 0; }
+.etmm__sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+.etmm__sublink {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0.45rem 0.6rem;
+    color: var(--etmm-text);
+    font-size: 13px;
+    text-decoration: none;
+    border-radius: 4px;
+    line-height: 1.3;
+}
+.etmm__sublink:hover, .etmm__sublink:focus {
+    background: var(--etmm-hover-bg);
+    color: var(--etmm-accent);
+}
+.etmm__count {
+    color: var(--etmm-muted);
+    font-size: 11px;
+    margin-left: 0.5rem;
+}
+
+/* ---- Featured product cards ----------------------------------------- */
+.etmm__featured { min-width: 220px; }
+/* Sub-sub-category links shown in the right panel when a subcategory is hovered. */
+.etmm__sublist--nested { margin: 0 0 0.7rem 0; }
+.etmm__cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+}
+.etmm__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: var(--etmm-text);
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: center;
+}
+.etmm__card-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.03);
+}
+.etmm__card-name {
+    font-weight: 600;
+    color: var(--etmm-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.etmm__card-price {
+    color: var(--etmm-accent);
+    font-weight: 700;
+}
+
+/* ---- Promo / CMS block column --------------------------------------- */
+/* When a promo block is present, widen the popover to a 3-column grid. */
+.etmm__pop-inner:has(.etmm__promo) {
+    grid-template-columns: 1fr 1.4fr minmax(170px, 0.9fr);
+}
+.etmm__promo {
+    order: 99;
+    min-width: 170px;
+    align-self: stretch;
+}
+.etmm__promo img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+}
+.etmm__promo a { text-decoration: none; }
+@media (max-width: 767px) {
+    .etmm__promo { display: none; }
+}
+
+/* ---- Mobile --------------------------------------------------------- */
+.etmm__hamburger {
+    display: none;
+    background: transparent;
+    border: 0;
+    color: var(--etmm-text);
+    font-size: 22px;
+    line-height: 1;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+}
+.etmm__mobile {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9100;
+}
+.etmm__mobile-inner {
+    background: var(--etmm-bg);
+    width: min(86vw, 320px);
+    height: 100%;
+    padding: 1rem;
+    overflow-y: auto;
+}
+.etmm__close {
+    background: transparent;
+    border: 0;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--etmm-text);
+    cursor: pointer;
+    float: right;
+    padding: 0;
+}
+.etmm__mobile-list {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+}
+.etmm__mobile-list > li {
+    border-bottom: 1px solid var(--etmm-border);
+    padding: 0.5rem 0;
+    position: relative;
+}
+.etmm__mobile-list a {
+    color: var(--etmm-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    display: block;
+    padding: 0.4rem 0.25rem;
+}
+.etmm__mobile-toggle {
+    position: absolute;
+    right: 0;
+    top: 0.6rem;
+    background: transparent;
+    border: 1px solid var(--etmm-border);
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    color: var(--etmm-text);
+    font-size: 14px;
+    cursor: pointer;
+}
+.etmm__mobile-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.5rem 0.75rem;
+}
+.etmm__mobile-sublist a {
+    font-weight: 400;
+    color: var(--etmm-text);
+    font-size: 13px;
+}
+
+/* ---- Responsive: hide desktop bar / show hamburger on mobile -------- */
+@media (max-width: 767px) {
+    .etmm__bar { display: none; }
+    .etmm__hamburger { display: inline-block; }
+}
+
+/* Accessibility: honour reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+    .etmm__link { transition: none; }
+}

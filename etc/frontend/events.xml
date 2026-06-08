@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- When the mega menu is enabled, remove the theme's native category nav
+         (catalog.topnav) so the mega menu takes its place. Frontend scope only. -->
+    <event name="layout_generate_blocks_after">
+        <observer name="etechflow_megamenu_replace_native_nav"
+                  instance="Etechflow\MegaMenu\Observer\ReplaceNativeNav"/>
+    </event>
+</config>

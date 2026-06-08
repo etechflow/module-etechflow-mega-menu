@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Etechflow_MegaMenu::css/mega-menu.css"/>
+    </head>
+    <body>
+        <!-- Render the mega menu in the page header (normal flow, always visible),
+             at the bottom of header.container so it sits as a full-width nav bar just
+             below the logo/search row. It must NOT live inside Luma's .nav-sections
+             wrapper: that container is mobile-first hidden and managed by Luma's
+             responsive nav JS/CSS, which left the menu invisible on desktop.
+             Observer\ReplaceNativeNav removes the native nav-section (store.menu, which
+             holds catalog.topnav) at runtime when the mega menu is enabled, so ours
+             fully replaces it. Disable the mega menu in admin and the native nav
+             section is left intact -> the default Luma nav returns. -->
+        <referenceContainer name="header.container">
+            <block class="Etechflow\MegaMenu\Block\MegaMenu"
+                   name="etechflow.megamenu"
+                   after="-"
+                   cacheable="true">
+                <arguments>
+                    <argument name="cache_lifetime" xsi:type="number">3600</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

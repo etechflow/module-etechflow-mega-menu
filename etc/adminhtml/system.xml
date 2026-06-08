@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="etechflow" translate="label" sortOrder="200">
+            <label>eTechFlow</label>
+        </tab>
+        <section id="etechflow_megamenu" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Mega Menu</label>
+            <tab>etechflow</tab>
+            <resource>Etechflow_MegaMenu::config</resource>
+
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Mega Menu</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch. Set to No to hide the mega menu entirely.</comment>
+                </field>
+                <field id="root_category_id" translate="label comment" sortOrder="20" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Root Category ID</label>
+                    <validate>required-entry validate-digits validate-greater-than-zero</validate>
+                    <comment>The category whose children become top-level menu items. Default 2 = Magento Default Category.</comment>
+                </field>
+                <field id="max_depth" translate="label comment" sortOrder="30" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maximum Depth</label>
+                    <validate>required-entry validate-digits validate-greater-than-zero validate-less-than-equals-to-4</validate>
+                    <comment>How many levels deep the dropdown drills. 1–3 supported. Default 2.</comment>
+                </field>
+                <field id="include_all_categories" translate="label comment" sortOrder="40" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attach All Active Categories</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Yes = every active category is shown automatically, even ones set to "Include in Menu = No". No (default) = respect each category's own "Include in Menu" flag.</comment>
+                </field>
+                <field id="custom_items" translate="label comment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Menu Links</label>
+                    <frontend_model>Etechflow\MegaMenu\Block\Adminhtml\Form\Field\CustomItems</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Add your own top-level links (e.g. Sale, Blog, an external URL or /path). They appear after the category items, ordered by Sort.</comment>
+                </field>
+            </group>
+
+            <group id="appearance" translate="label" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Appearance</label>
+                <field id="accent_color" translate="label comment" sortOrder="10" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Accent Color</label>
+                    <comment>Optional. A hex colour like #1979c3, used for hover highlights and prices to match your theme/brand. Leave blank and the menu automatically inherits the active theme's colours.</comment>
+                </field>
+            </group>
+
+            <group id="dropdown" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Dropdown Content</label>
+                <field id="products_per_category" translate="label comment" sortOrder="10" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Featured Products per Category</label>
+                    <validate>required-entry validate-digits</validate>
+                    <comment>How many product cards to render on the right of each dropdown.</comment>
+                </field>
+                <field id="show_thumbnails" translate="label comment" sortOrder="20" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Product Thumbnails</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Render thumbnails next to featured products.</comment>
+                </field>
+                <field id="mobile_drill" translate="label comment" sortOrder="30" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Mobile Drill-Down</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>On screens narrower than 768px, replace the desktop dropdown with a drill-down slide panel.</comment>
+                </field>
+                <field id="products_source" translate="label comment" sortOrder="40" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Featured Products Source</label>
+                    <source_model>Etechflow\MegaMenu\Model\Source\ProductsSource</source_model>
+                    <comment>Which products fill the right side of each dropdown (newest, best sellers, on sale, price, or the category's own order).</comment>
+                </field>
+                <field id="promo_block" translate="label comment" sortOrder="50" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Dropdown Promo CMS Block</label>
+                    <comment>Optional. Identifier of a CMS block (Content &gt; Blocks) shown as a banner/column inside every dropdown. Leave blank for none.</comment>
+                </field>
+            </group>
+
+            <group id="cache" translate="label" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Cache</label>
+                <field id="cache_ttl" translate="label comment" sortOrder="10" type="text" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>JSON Endpoint Cache TTL (seconds)</label>
+                    <validate>required-entry validate-digits</validate>
+                    <comment>How long the /megamenu/products/index responses are cached. Cache auto-busts when categories or products change.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

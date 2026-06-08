@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Distribution build artifacts
+*.zip
+
+# PHP dependencies (this module is consumed via Composer; consumers install their own)
+/vendor/
+composer.lock

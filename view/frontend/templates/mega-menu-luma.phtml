@@ -1,0 +1,104 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Etechflow_MegaMenu — Luma / Adobe Commerce / generic variant.
+ *
+ * Outputs semantic HTML with `etmm-*` class hooks. Behaviour is driven by
+ * the bundled `web/js/mega-menu.js` (vanilla JS — no jQuery dependency).
+ * Theme can override by placing a same-named phtml under
+ *   app/design/frontend/<Vendor>/<theme>/Etechflow_MegaMenu/templates/mega-menu-luma.phtml
+ */
+
+use Etechflow\MegaMenu\Block\MegaMenu;
+use Magento\Framework\Escaper;
+
+/** @var MegaMenu $block */
+/** @var Escaper $escaper */
+$menu      = $block->getMenuData();
+$top       = $menu->getTopLevelCategories();
+$endpoint  = $menu->getJsonEndpoint();
+$mobile    = $menu->getConfig()->isMobileDrillEnabled();
+$showThumb = $menu->getConfig()->showThumbnails();
+$accent    = $menu->getConfig()->getAccentColor();
+$promoHtml = $block->getPromoBlockHtml();
+?>
+
+<nav class="etmm etmm--luma"
+     aria-label="<?= $escaper->escapeHtmlAttr(__('Main navigation')) ?>"
+     data-etmm-endpoint="<?= $escaper->escapeUrl($endpoint) ?>"
+     data-etmm-mobile="<?= $mobile ? '1' : '0' ?>"
+     data-etmm-thumbs="<?= $showThumb ? '1' : '0' ?>"<?php if ($accent !== ''): ?>
+     style="--etmm-accent: <?= $escaper->escapeHtmlAttr($accent) ?>"<?php endif; ?>>
+
+  <!-- Desktop bar -->
+  <ul class="etmm__bar" role="menubar">
+    <?php foreach ($top as $cat): ?>
+      <li class="etmm__item" role="none" data-etmm-cat="<?= (int) $cat['id'] ?>">
+        <a class="etmm__link"
+           role="menuitem"
+           href="<?= $escaper->escapeUrl($cat['url']) ?>"
+           aria-haspopup="<?= $cat['has_children'] ? 'true' : 'false' ?>"
+           aria-expanded="false">
+          <?= $escaper->escapeHtml($cat['name']) ?>
+          <?php if ($cat['has_children']): ?>
+            <span class="etmm__chev" aria-hidden="true">&#9662;</span>
+          <?php endif; ?>
+        </a>
+
+        <?php if ($cat['has_children']): ?>
+        <div class="etmm__pop" role="menu" hidden>
+          <div class="etmm__pop-inner">
+            <?php if ($promoHtml !== ''): ?>
+            <div class="etmm__promo"><?= /* @noEscape */ $promoHtml ?></div>
+            <?php endif; ?>
+            <div class="etmm__subs" data-etmm-subs>
+              <p class="etmm__muted" data-etmm-loading><?= $escaper->escapeHtml(__('Loading…')) ?></p>
+            </div>
+            <?php /* Featured-products column always renders; the "Show Thumbnails"
+                     toggle only controls whether each card shows an image (handled
+                     in mega-menu.js via data-etmm-thumbs). Gating the whole column
+                     on thumbnails hid products entirely when thumbnails were off. */ ?>
+            <div class="etmm__featured"
+                 data-etmm-featured
+                 aria-label="<?= $escaper->escapeHtmlAttr(__('Featured products')) ?>"></div>
+          </div>
+        </div>
+        <?php endif; ?>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+
+  <?php if ($mobile): ?>
+  <!-- Mobile hamburger -->
+  <button type="button"
+          class="etmm__hamburger"
+          data-etmm-mobile-toggle
+          aria-expanded="false"
+          aria-label="<?= $escaper->escapeHtmlAttr(__('Open menu')) ?>">
+    <span aria-hidden="true">&#9776;</span>
+  </button>
+
+  <!-- Mobile slide-out -->
+  <div class="etmm__mobile" data-etmm-mobile-panel hidden>
+    <div class="etmm__mobile-inner">
+      <button type="button" class="etmm__close" data-etmm-mobile-close
+              aria-label="<?= $escaper->escapeHtmlAttr(__('Close menu')) ?>">&times;</button>
+      <ul class="etmm__mobile-list">
+        <?php foreach ($top as $cat): ?>
+          <li data-etmm-mobile-cat="<?= (int) $cat['id'] ?>">
+            <a href="<?= $escaper->escapeUrl($cat['url']) ?>"><?= $escaper->escapeHtml($cat['name']) ?></a>
+            <?php if ($cat['has_children']): ?>
+              <button type="button" class="etmm__mobile-toggle" data-etmm-mobile-sub
+                      aria-expanded="false">+</button>
+              <ul class="etmm__mobile-sublist" data-etmm-mobile-sublist hidden></ul>
+            <?php endif; ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  </div>
+  <?php endif; ?>
+</nav>
+
+<script src="<?= $escaper->escapeUrl($block->getViewFileUrl('Etechflow_MegaMenu::js/mega-menu.js')) ?>" defer></script>
