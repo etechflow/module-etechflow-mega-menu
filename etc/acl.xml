@@ -9,7 +9,11 @@
                         <resource id="Magento_Config::config">
                             <resource id="Etechflow_MegaMenu::config"
                                       title="EtechFlow Mega Menu"
-                                      sortOrder="100"/>
+                                      sortOrder="100">
+                                <resource id="Etechflow_MegaMenu::license"
+                                          title="License"
+                                          sortOrder="10"/>
+                            </resource>
                         </resource>
                     </resource>
                 </resource>

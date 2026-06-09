@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Etechflow\MegaMenu\Model;
@@ -6,12 +7,6 @@ namespace Etechflow\MegaMenu\Model;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Typed reader over Stores → Configuration → eTechFlow → Mega Menu.
- *
- * Defaults come from {@see etc/config.xml}; this class only adds typing +
- * a single source-of-truth so the controller, block, and JS all agree.
- */
 class Config
 {
     public const XML_ENABLED              = 'etechflow_megamenu/general/enabled';
@@ -28,12 +23,16 @@ class Config
     public const XML_ACCENT_COLOR         = 'etechflow_megamenu/appearance/accent_color';
 
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly LicenseValidator $licenseValidator
     ) {
     }
 
     public function isEnabled(): bool
     {
+        if (!$this->licenseValidator->isValid()) {
+            return false;
+        }
         return (bool) $this->scopeConfig->getValue(self::XML_ENABLED, ScopeInterface::SCOPE_STORE);
     }
 
