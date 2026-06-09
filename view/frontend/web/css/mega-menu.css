@@ -267,3 +267,42 @@
 @media (prefers-reduced-motion: reduce) {
     .etmm__link { transition: none; }
 }
+
+/* ====================================================================
+ * Luma / Adobe Commerce variant — sit inside the theme's page layout
+ * ====================================================================
+ * The block is output full-width in header.container, so without this the bar
+ * hugs the viewport edge instead of lining up with the logo, breadcrumbs and
+ * page content. We mirror the theme's centred max-width container — both values
+ * are CSS variables so a custom theme can override them (e.g. from its own CSS
+ * or by setting them on .etmm--luma) — and offset the row so the first item's
+ * text aligns with the page gutter, exactly how Luma's native top nav behaves.
+ */
+.etmm--luma {
+    --etmm-container-max: 1280px;   /* Luma $layout__max-width — override per theme */
+    --etmm-gutter: 20px;            /* Luma side gutter ($layout-indent__width)     */
+    width: 100%;
+    border-top: 1px solid var(--etmm-border);
+    border-bottom: 1px solid var(--etmm-border);
+    margin-bottom: 1rem;
+}
+.etmm--luma > .etmm__bar {
+    max-width: var(--etmm-container-max);
+    width: 100%;
+    margin-inline: auto;
+    /* gutter minus the link's own horizontal padding ⇒ first item text on the gutter */
+    padding-inline: calc(var(--etmm-gutter) - 1.1rem);
+}
+/* Right-most items open their dropdown leftwards so it stays inside the viewport. */
+.etmm--luma .etmm__item:nth-last-child(-n + 2) > .etmm__pop {
+    left: auto;
+    right: 0;
+}
+/* The popover never wider than the screen on smaller desktops. */
+.etmm--luma .etmm__pop {
+    max-width: calc(100vw - 2 * var(--etmm-gutter));
+}
+/* Mobile: keep the hamburger aligned to the same gutter, off the very edge. */
+@media (max-width: 767px) {
+    .etmm--luma { padding-inline: calc(var(--etmm-gutter) - 0.75rem); }
+}
