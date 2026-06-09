@@ -201,4 +201,68 @@
             }
         });
     });
+
+    /* ---- Dynamic alignment: match the bar to the theme's content container ----
+     * The block renders full-width in header.container, so to line the bar up with
+     * the real page design we measure a representative content element (the header
+     * row / main column / breadcrumbs — whichever the active theme actually uses)
+     * and copy its left offset, width and side padding onto the bar. This adapts to
+     * ANY theme and container width automatically and recomputes on resize. The CSS
+     * --etmm-container-max / --etmm-gutter defaults stay as the pre-JS baseline, so
+     * there is no misaligned flash before this runs. */
+    var bar = nav.querySelector('.etmm__bar');
+    var REF_SELECTORS = ['.header.content', '.page-main', '.column.main',
+                         '.columns', '.breadcrumbs', '.page-wrapper'];
+
+    function findRef() {
+        for (var i = 0; i < REF_SELECTORS.length; i++) {
+            var el = document.querySelector(REF_SELECTORS[i]);
+            if (el && el.getBoundingClientRect().width > 0) {
+                return el;
+            }
+        }
+        return null;
+    }
+
+    function alignBar() {
+        if (!bar) return;
+        // Mobile: the bar is hidden and the hamburger takes over — drop overrides.
+        if (window.innerWidth < 768) {
+            bar.style.width = bar.style.maxWidth = bar.style.marginLeft =
+                bar.style.marginRight = bar.style.paddingLeft = bar.style.paddingRight = '';
+            return;
+        }
+        var ref = findRef();
+        if (!ref) return;
+        var r = ref.getBoundingClientRect();
+        var navLeft = nav.getBoundingClientRect().left;
+        var cs = window.getComputedStyle(ref);
+        var padL = parseFloat(cs.paddingLeft) || 0;
+        var padR = parseFloat(cs.paddingRight) || 0;
+        bar.style.maxWidth = 'none';
+        bar.style.width = r.width + 'px';
+        bar.style.marginLeft = (r.left - navLeft) + 'px';
+        bar.style.marginRight = '0';
+        // First item's TEXT lands on the container's content edge (minus link padding).
+        bar.style.paddingLeft = 'calc(' + padL + 'px - 1.1rem)';
+        bar.style.paddingRight = padR + 'px';
+    }
+
+    var alignRaf = null;
+    function alignBarDebounced() {
+        if (window.requestAnimationFrame) {
+            if (alignRaf) window.cancelAnimationFrame(alignRaf);
+            alignRaf = window.requestAnimationFrame(alignBar);
+        } else {
+            alignBar();
+        }
+    }
+
+    alignBar();
+    window.addEventListener('resize', alignBarDebounced);
+    window.addEventListener('load', alignBar);
+    // Re-align once web fonts settle, in case they shift the container width.
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(alignBar);
+    }
 })();
