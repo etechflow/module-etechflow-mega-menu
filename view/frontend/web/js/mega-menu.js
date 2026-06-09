@@ -258,11 +258,70 @@
         }
     }
 
+    /* ---- Dynamic colour: adopt the active theme's palette --------------------
+     * Read the theme's brand colour (a primary button's background, falling back to
+     * the link colour) and its link-text colour from the rendered page, and feed
+     * them into the menu's CSS variables so the bar text, hovers and prices match
+     * the surrounding site automatically — on any theme. An explicit admin "Accent
+     * Color" still wins. Transparent / near-white values are skipped so the menu is
+     * never washed out. Runs once (colours don't change on resize). */
+    function parseRGB(c) {
+        if (!c) return null;
+        var m = c.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/i);
+        return m ? { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 } : null;
+    }
+    function usableColor(c) {
+        var p = parseRGB(c);
+        if (!p || p.a < 0.2) return null;                       // transparent
+        if (p.r > 238 && p.g > 238 && p.b > 238) return null;   // near-white
+        return p;
+    }
+    function probeColor(list) {
+        for (var i = 0; i < list.length; i++) {
+            var el = document.querySelector(list[i][0]);
+            if (!el) continue;
+            var p = usableColor(window.getComputedStyle(el)[list[i][1]]);
+            if (p) return p;
+        }
+        return null;
+    }
+    var colorsDone = false;
+    function detectColors() {
+        if (colorsDone) return;
+        colorsDone = true;
+        // Brand accent → hovers, active item, prices, hover tint.
+        if (!nav.style.getPropertyValue('--etmm-accent').trim()) {
+            var a = probeColor([
+                ['.action.primary', 'backgroundColor'],
+                ['button.action.primary', 'backgroundColor'],
+                ['.action.tocart', 'backgroundColor'],
+                ['.page-header a', 'color'],
+                ['.breadcrumbs a', 'color'],
+                ['a', 'color']
+            ]);
+            if (a) {
+                nav.style.setProperty('--etmm-accent', 'rgb(' + a.r + ',' + a.g + ',' + a.b + ')');
+                nav.style.setProperty('--etmm-hover-bg', 'rgba(' + a.r + ',' + a.g + ',' + a.b + ',0.10)');
+            }
+        }
+        // Link/text colour → bar items + dropdown links match the theme's links.
+        var t = probeColor([
+            ['.breadcrumbs a', 'color'],
+            ['.page-header a', 'color'],
+            ['.product-item-link', 'color'],
+            ['a', 'color']
+        ]);
+        if (t) {
+            nav.style.setProperty('--etmm-text', 'rgb(' + t.r + ',' + t.g + ',' + t.b + ')');
+        }
+    }
+
     alignBar();
+    detectColors();
     window.addEventListener('resize', alignBarDebounced);
-    window.addEventListener('load', alignBar);
-    // Re-align once web fonts settle, in case they shift the container width.
+    window.addEventListener('load', function () { alignBar(); detectColors(); });
+    // Re-run once web fonts settle, in case they shift the container width.
     if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(alignBar);
+        document.fonts.ready.then(function () { alignBar(); detectColors(); });
     }
 })();
