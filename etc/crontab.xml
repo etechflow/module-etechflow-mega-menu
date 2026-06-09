@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!--
+            Re-validate the licence every minute and flush the storefront cache when the
+            enforced state changes, so portal suspensions / IP removals take effect within
+            ~1-2 minutes instead of lingering in the Full Page Cache.
+        -->
+        <job name="etechflow_megamenu_revalidate_license"
+             instance="Etechflow\MegaMenu\Cron\RevalidateLicense"
+             method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>

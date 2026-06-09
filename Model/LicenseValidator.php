@@ -54,7 +54,7 @@ class LicenseValidator
     // up to an hour. Per PORTAL_LICENSING_GUIDE.md §3 (PORTAL_CACHE_TTL = 30).
     private const CACHE_TTL_VALID  = 30;
     private const CACHE_TTL_REJECT = 60;
-    private const CACHE_TAG = 'etf_megamenu_license';
+    public const CACHE_TAG = 'etf_megamenu_license';
 
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
