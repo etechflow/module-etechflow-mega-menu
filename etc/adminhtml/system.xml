@@ -20,16 +20,7 @@
             <group id="license" translate="label" type="text" sortOrder="5"
                    showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>License</label>
-
-                <field id="production_environment" translate="label comment" type="select"
-                       sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Production Environment</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[
-                        <strong>Yes</strong> = live site. License key required.<br/>
-                        <strong>No</strong> = dev/staging. Module runs without a key.
-                    ]]></comment>
-                </field>
+                <comment><![CDATA[A valid licence is always required for Mega Menu to render on the storefront. Enter your key below or activate a plan from the gate page.]]></comment>
 
                 <field id="license_key" translate="label comment" type="text"
                        sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">

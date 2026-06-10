@@ -14,19 +14,22 @@ use Magento\Store\Model\StoreManagerInterface;
  * Hybrid HMAC + portal license validator for Etechflow_MegaMenu.
  * Follows PORTAL_LICENSING_GUIDE.md §3-step-1.
  *
+ * A valid licence is ALWAYS required — there is no "Production Environment"
+ * dev-bypass toggle. The only way to unlock is a valid key (SP-XXXX subscription,
+ * HMAC per-module, or shared bundle). On a dev/staging box, set a valid HMAC key
+ * computed for the host (see computeKey()).
+ *
  *   isValid() priority:
- *     1. revoked = 1                       → false (portal revoke wins even in dev)
- *     2. production_environment = No       → true (dev bypass)
- *     3. SP-XXXX key, portal answers       → portal's answer is final (true/false)
- *     4. SP-XXXX key, portal unreachable   → 48h local grace fallback
- *     5. Legacy HMAC per-module key        → hash_equals(computeKey(host), key)
- *     6. Bundle key                        → hash_equals(computeBundleKey(host), key)
- *     7. otherwise                         → false
+ *     1. revoked = 1                       → false (portal revoke wins)
+ *     2. SP-XXXX key, portal answers       → portal's answer is final (true/false)
+ *     3. SP-XXXX key, portal unreachable   → 48h local grace fallback
+ *     4. Legacy HMAC per-module key        → hash_equals(computeKey(host), key)
+ *     5. Bundle key                        → hash_equals(computeBundleKey(host), key)
+ *     6. otherwise                         → false
  */
 class LicenseValidator
 {
     public const XML_PATH_LICENSE_KEY            = 'etechflow_megamenu/license/license_key';
-    public const XML_PATH_PRODUCTION_ENVIRONMENT = 'etechflow_megamenu/license/production_environment';
     public const XML_PATH_PORTAL_URL             = 'etechflow_megamenu/license/portal_url';
     public const XML_PATH_PORTAL_API_URL         = 'etechflow_megamenu/license/portal_api_url';
 
@@ -75,10 +78,7 @@ class LicenseValidator
             return false;
         }
 
-        if (!$this->isProductionEnvironment()) {
-            return true;
-        }
-
+        // A valid licence is ALWAYS required — no Production Environment bypass.
         $configuredKey = $this->getConfiguredKey();
 
         if (str_starts_with($configuredKey, 'SP-')) {
@@ -210,15 +210,6 @@ class LicenseValidator
     {
         $value = $this->scopeConfig->getValue(self::XML_PATH_BUNDLE_LICENSE_KEY, ScopeInterface::SCOPE_STORE);
         return trim((string) $value);
-    }
-
-    public function isProductionEnvironment(): bool
-    {
-        $value = $this->scopeConfig->getValue(self::XML_PATH_PRODUCTION_ENVIRONMENT, ScopeInterface::SCOPE_STORE);
-        if ($value === null || $value === '') {
-            return true;
-        }
-        return (bool) $value;
     }
 
     public function getCurrentHost(): string
