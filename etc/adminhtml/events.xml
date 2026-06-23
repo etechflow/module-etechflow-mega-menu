@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- Update-notification bell: write an admin notice when a newer release exists. -->
+    <event name="controller_action_predispatch_etechflow_megamenu">
+        <observer name="etechflow_mm_update_notification" instance="Etechflow\MegaMenu\Observer\AddUpdateNotification"/>
+    </event>
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer name="etechflow_mm_update_notification_sysconfig" instance="Etechflow\MegaMenu\Observer\AddUpdateNotification"/>
+    </event>
+</config>
