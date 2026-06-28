@@ -12,9 +12,9 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\HTTP\Client\CurlFactory;
 
 /**
- * Starts checkout by delegating to the eTechFlow webstore Paddle broker
- * (module.etechflow.com). The broker opens a Paddle transaction on the
- * webstore's OWN Paddle account and returns the hosted pay URL; the portal
+ * Starts checkout by delegating to the eTechFlow webstore Stripe broker
+ * (module.etechflow.com). The broker opens a Stripe transaction on the
+ * webstore's OWN Stripe account and returns the hosted pay URL; the portal
  * still issues the SP-XXXX key once payment clears. No card keys live in
  * Magento. Replaces the prior direct-Stripe call.
  */
